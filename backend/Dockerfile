@@ -16,15 +16,27 @@ COPY . .
 RUN cargo build --release
 
 # Stage 2: Runtime (kleines Image)
+# Stage 2: Runtime (kleines Image)
+# Stage 2: Runtime (kleines Image)
 FROM debian:bookworm-slim
 
 WORKDIR /app
 
-# Installiere OpenSSL und MySQL Client Libs 
-RUN apt-get update && apt-get install -y libssl3 default-libmysqlclient-dev ca-certificates && rm -rf /var/lib/apt/lists/*
+# Installiere OpenSSL und MySQL Client Runtime Libs 
+# Verwende libmariadb3, da es die MySQL Client Laufzeitbibliothek in Bookworm ist.
+RUN apt-get update && \
+    apt-get install -y \
+    libssl3 \
+    libmariadb3 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# WICHTIG: Ersetze "mcdater_backend" durch den Namen aus deiner Cargo.toml!
+# ... Rest des Dockerfiles ...
+
+# WICHTIG: Ersetze "backend" durch den Namen aus deiner Cargo.toml!
 COPY --from=builder /usr/src/app/target/release/backend ./server
+
+COPY seeds ./seeds
 
 # Expose den Port, auf dem Rust läuft
 EXPOSE 8080

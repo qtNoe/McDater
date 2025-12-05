@@ -1,4 +1,5 @@
 mod routing;
+mod seed;
 
 use routing::routes;
 use tokio::net::TcpListener;
@@ -9,16 +10,24 @@ use axum::Router;
 
 #[tokio::main]
 async fn main() {
+    println!("Starting backend server...");
+
     // Lade .env Datei, falls vorhanden (lokale Entwicklung)
     dotenv().ok();
 
     // Environment Variablen aus Docker Compose verwenden
     let host = env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+
+    println!("on {}:{}", host, port);
     
     // Wir brauchen die DATABASE_URL, die wir in Docker Compose gesetzt haben
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
 
+    println!("Using database URL: {}", database_url);
+
+
+    println!("Connecting to database...");
     // 1. Datenbankverbindung herstellen
     let db_pool = match MySqlPoolOptions::new()
         .max_connections(5)
@@ -35,12 +44,26 @@ async fn main() {
             std::process::exit(1);
         }
     };
+
+    println!("Running database migrations...");
+    // Füge diese zwei Zeilen nach dem Erstellen des Pools hinzu
+    sqlx::migrate!()
+        .run(&db_pool)
+        .await
+        .expect("Failed to run database migrations");
+
+    println!("Running seed data...");
+    seed::run_seeding(&db_pool).await.expect("Failed to run seed data");
+
+    println!("Setting up routes...");
     
     let app: Router = routes::create_routes(db_pool.clone());
 
     // 2. TCP Listener binden
     // WICHTIG: Verwende 0.0.0.0, um außerhalb des Containers erreichbar zu sein
     let bind_addr = format!("{}:{}", host, port);
+
+    println!("Binding to address: {}", bind_addr);
 
     let listener = match TcpListener::bind(&bind_addr).await {
         Ok(l) => {
