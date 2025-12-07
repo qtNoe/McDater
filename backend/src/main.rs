@@ -46,6 +46,32 @@ async fn main() {
     };
 
     println!("Running database migrations...");
+
+
+    // Y
+    println!("Dropping all tables...");
+
+    let tables = sqlx::query_scalar::<_, String>(
+        "
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema = DATABASE()
+        "
+    ).fetch_all(&db_pool).await.unwrap();
+
+    sqlx::query("SET FOREIGN_KEY_CHECKS = 0;").execute(&db_pool).await.unwrap();
+
+    for table in tables {
+        let query = format!("DROP TABLE `{}`", table);
+        println!("Dropping table: {}", query);
+        sqlx::query(&query).execute(&db_pool).await.unwrap();
+    }
+
+    sqlx::query("SET FOREIGN_KEY_CHECKS = 1;").execute(&db_pool).await.unwrap();
+
+    // Y
+
+
+
     //migrations::run_migrations(&db_pool).await.expect("Failed to run migration data");
     sqlx::migrate!("./migrations").run(&db_pool).await.expect("msg");
 

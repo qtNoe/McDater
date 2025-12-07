@@ -42,6 +42,7 @@ CREATE TABLE `user_blocked` (
 CREATE TABLE `user_banned` (
     `uuid` VARCHAR(255),
     `until` TIMESTAMP,
+    `reason` VARCHAR(255),
     `active` TINYINT(1) DEFAULT 1,
     `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`uuid`, `until`, `active`, `created`),
