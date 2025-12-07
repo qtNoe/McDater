@@ -4,5 +4,5 @@ use sqlx::MySqlPool;
 
 pub fn create_routes(pool: MySqlPool) -> Router {
     Router::new()
-        .route("/users", get(move || user_handler::get_users(pool.clone())))
+        .route("/matches", get(move || user_handler::get_users(pool.clone())))
 }
