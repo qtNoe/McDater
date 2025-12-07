@@ -1,5 +1,6 @@
 mod routing;
 mod seed;
+mod migrations;
 
 use routing::routes;
 use tokio::net::TcpListener;
@@ -46,11 +47,7 @@ async fn main() {
     };
 
     println!("Running database migrations...");
-    // Füge diese zwei Zeilen nach dem Erstellen des Pools hinzu
-    sqlx::migrate!()
-        .run(&db_pool)
-        .await
-        .expect("Failed to run database migrations");
+    migrations::run_migrations(&db_pool).await.expect("Failed to run migration data");
 
     println!("Running seed data...");
     seed::run_seeding(&db_pool).await.expect("Failed to run seed data");

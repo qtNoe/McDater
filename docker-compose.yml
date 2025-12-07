@@ -1,5 +1,4 @@
 services:
-  # 1. MySQL Datenbank
   db:
     image: mysql:8.0
     container_name: mcdater_database
