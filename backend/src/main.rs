@@ -1,6 +1,5 @@
 mod routing;
 mod seed;
-mod migrations;
 
 use routing::routes;
 use tokio::net::TcpListener;
@@ -47,7 +46,8 @@ async fn main() {
     };
 
     println!("Running database migrations...");
-    migrations::run_migrations(&db_pool).await.expect("Failed to run migration data");
+    //migrations::run_migrations(&db_pool).await.expect("Failed to run migration data");
+    sqlx::migrate!("./migrations").run(&db_pool).await.expect("msg");
 
     println!("Running seed data...");
     seed::run_seeding(&db_pool).await.expect("Failed to run seed data");
