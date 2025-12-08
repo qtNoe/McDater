@@ -1,12 +1,15 @@
 mod routing;
 mod seed;
+mod service;
+mod repository;
 
-use routing::routes;
+
+
 use tokio::net::TcpListener;
 use sqlx::mysql::MySqlPoolOptions;
 use dotenvy::dotenv;
 use std::env;
-use axum::Router;
+
 
 #[tokio::main]
 async fn main() {
@@ -79,8 +82,10 @@ async fn main() {
     seed::run_seeding(&db_pool).await.expect("Failed to run seed data");
 
     println!("Setting up routes...");
-    
-    let app: Router = routes::create_routes(db_pool.clone());
+
+    let app = routing::routes::create_routes()
+        .with_state(db_pool);
+
 
     // 2. TCP Listener binden
     // WICHTIG: Verwende 0.0.0.0, um außerhalb des Containers erreichbar zu sein

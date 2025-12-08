@@ -1,0 +1,20 @@
+meta {
+  name: Block
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:8080/block/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: AAAA-BBBB-CCCC-DDDD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

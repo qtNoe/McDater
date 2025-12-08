@@ -1,0 +1,20 @@
+meta {
+  name: Dislike
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/dislike/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: AAAA-BBBB-CCCC-DDDD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
